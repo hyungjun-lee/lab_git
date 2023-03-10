@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "draw.C": "cpp",
-        "o2sim.C": "cpp"
+        "o2sim.C": "cpp",
+        "Draw_etadau.C": "cpp",
+        "Draw_mass.C": "cpp",
+        "drawV0_hj.C": "cpp"
     }
 }

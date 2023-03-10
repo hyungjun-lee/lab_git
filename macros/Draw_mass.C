@@ -103,7 +103,7 @@ void Draw_mass() {
     // V0Mass (MC)
     auto HV0MASS = (THnSparse *) gROOT->FindObject("hV0Mass");
     auto HV0Mass = BSTHnSparseHelper(HV0MASS);
-    auto hK0shortMass = HV0Mass.GetTH1("hK0short", 2, {kINEL, kK0short, -1});
+    auto hK0shortMass = HV0Mass.GetTH1("hK0short", 2, {kINEL, kK0short, 2});
     auto hLambdaMass = HV0Mass.GetTH1("hLambda", 2, {kINEL, kLambda, -1});
     auto hAntiLambdaMass = HV0Mass.GetTH1("hAntiLambda", 2, {kINEL, kAntilambda, -1});
 
@@ -121,7 +121,7 @@ void Draw_mass() {
     // V0Mass (Data)
     auto DHV0MASS = (THnSparse *) gROOT->FindObject("hV0Mass");
     auto DHV0Mass = BSTHnSparseHelper(DHV0MASS);
-    auto DhK0shortMass = DHV0Mass.GetTH1("data_hK0short", 2, {kDATA, kK0short, -1});
+    auto DhK0shortMass = DHV0Mass.GetTH1("data_hK0short", 2, {kDATA, kK0short, 2});
     auto DhLambdaMass = DHV0Mass.GetTH1("data_hLambda", 2, {kDATA, kLambda, -1});
     auto DhAntiLambdaMass = DHV0Mass.GetTH1("data_hAntiLambda", 2, {kDATA, kAntilambda, -1});
 //--------------------------------------------------------------------------------------------------------------------//
@@ -166,6 +166,19 @@ void Draw_mass() {
     legend_K0short->SetBorderSize(0);
     legend_K0short->SetTextAlign(22);
     legend_K0short->Draw();
+
+    // Count the # of the V0 particles in the peack with bg
+    float DataK0Count = DhK0shortMass->Integral(0.482, 0.509);
+    float binwidthDATAK0Count = DataK0Count->GetXaxis()->GetBinWidth(1);
+    float DataK0shortMassPeakCount = DataK0Count / binwidthDATAK0Count;
+    std::cout << DataK0shortMassPeakCount << std::endl;
+    TLegend *lk0 = new TLegend(0.51, 0.74, 0.8, 0.92, NULL, "brNDC");
+    lk0->AddEntry(DhK0shortMass, Form("# of ptls: %.1f",DataK0shortMassPeakCount),"");
+    lk0->SetBorderSize(0);
+    lk0->SetTextAlign(12);
+    lk0->SetTextSize(0.07);
+    lk0->SetMargin(-0.04);
+    lk0->Draw("same");
 
     // draw ratio of K0shortMass (MC/Data)
     TPad *K0short_ratioPad = canvas1->GetPad(2);

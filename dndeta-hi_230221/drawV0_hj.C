@@ -89,8 +89,8 @@ Double_t FitDoubleGaus(Double_t *x, Double_t *par)
 void drawV0_hj()
 {
     /// @root file load - - - - - - - - - - - - - - - -
-    auto mc_file = TFile::Open("./AnalysisResults.mc.root", "open");
-    // auto data_file = TFile::Open("../data/AnalysisResults-2.root", "open");
+    auto mc_file = TFile::Open("../mc/LHC22k3b/hyper/AnalysisResults_mc_hyper_PbPb_LHC22k3b2_with_V0Cuts.root", "open");
+    auto data_file = TFile::Open("../data/LHC22s/hyper/AnalysisResults_data_hyper_PbPb_LHC22s_apass4_with_v0Cuts.root", "open");
 
     /// - - - - - - - - - - - - - - - - - - - - - - - -
 
