@@ -1,0 +1,99 @@
+```
+{
+    "internal-dpl-clock": "",
+    "internal-dpl-aod-reader": {
+        "time-limit": "180",
+        "orbit-offset-enumeration": "0",
+        "orbit-multiplier-enumeration": "0",
+        "start-value-enumeration": "0",
+        "end-value-enumeration": "-1",
+        "step-value-enumeration": "1",
+        "channel-config": "name=metric-feedback,type=pull,method=connect,address=ipc:\/\/@dpl_71024_metric-feedback-71024,transport=shmem,rateLogging=0",
+        "aod-file": "@input_data.txt"
+    },
+    "internal-dpl-aod-spawner": "",
+    "collision-converter": {
+        "doNotSwap": "false",
+        "debug": "false",
+        "nbins": "1",
+        "tolerance": "0.00100000005"
+    },
+    "timestamp-task": {
+        "verbose": "false",
+        "rct-path": "RCT\/Info\/RunInformation",
+        "orbit-reset-path": "CTP\/Calib\/OrbitReset",
+        "ccdb-url": "http:\/\/alice-ccdb.cern.ch",
+        "isRun2MC": "false"
+    },
+    "track-propagation": {
+        "ccdb-url": "http:\/\/alice-ccdb.cern.ch",
+        "lutPath": "GLO\/Param\/MatLUT",
+        "geoPath": "GLO\/Config\/GeometryAligned",
+        "grpmagPath": "GLO\/Config\/GRPMagField",
+        "mVtxPath": "GLO\/Calib\/MeanVertex",
+        "minPropagationDistance": "5",
+        "processStandard": "true",
+        "processCovariance": "false"
+    },
+    "internal-dpl-aod-index-builder": "",
+    "bc-selection-task": {
+        "triggerBcShift": "999",
+        "processRun2": "false",
+        "processRun3": "true"
+    },
+    "track-selection": {
+        "isRun3": "true",
+        "produceFBextendedTable": "false",
+        "compatibilityIU": "false",
+        "itsMatching": "1",
+        "ptMin": "0.100000001",
+        "ptMax": "1e+10",
+        "etaMin": "-0.800000012",
+        "etaMax": "0.800000012"
+    },
+    "ambiguous-track-propagation": {
+        "ccdb-url": "http:\/\/alice-ccdb.cern.ch",
+        "geoPath": "GLO\/Config\/GeometryAligned",
+        "grpmagPath": "GLO\/Config\/GRPMagField",
+        "mVtxPath": "GLO\/Calib\/MeanVertex",
+        "produceExtra": "false",
+        "processCentral": "false",
+        "processMFT": "true"
+    },
+    "event-selection-task": {
+        "syst": "pp",
+        "muonSelection": "0",
+        "customDeltaBC": "-1",
+        "isMC": "true",
+        "processRun2": "false",
+        "processRun3": "true"
+    },
+    "pseudorapidity-density-m-f-t": {
+        "estimatorEta": "1",
+        "useEvSel": "true",
+        "multBinning": {
+            "values": [
+                "7001",
+                "-0.5",
+                "7000.5"
+            ]
+        },
+        "useZDiffCut": "true",
+        "maxZDiff": "1",
+        "ccdb-path": "Users\/s\/sherrman\/My\/Object",
+        "ccdb-url": "http:\/\/alice-ccdb.cern.ch",
+        "ccdb-no-later-than": "1670205193391",
+        "processTagging": "true",
+        "processAmbi": "true",
+        "processMult": "true",
+        "processMultReweight": "false",
+        "processCountingCentrality": "false",
+        "processGen": "true",
+        "processGenPt": "false"
+    },
+    "internal-dpl-injected-dummy-sink": {
+        "channel-config": "name=metric-feedback,type=push,method=bind,address=ipc:\/\/@dpl_71024_metric-feedback-71024,transport=shmem,rateLogging=0"
+    },
+    "internal-dpl-aod-global-analysis-file-sink": "",
+    "internal-dpl-aod-writer": ""
+}
