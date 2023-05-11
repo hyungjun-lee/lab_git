@@ -67,7 +67,9 @@ using MyCollisionsCent = soa::Join<aod::Collisions, aod::EvSels, aod::CentFT0Cs>
 using FullBCs = soa::Join<aod::BCsWithTimestamps, aod::BcSels>;
 using DaughterTrack = soa::Join<aod::pidTPCPi, aod::pidTPCKa, aod::pidTPCPr, aod::pidTOFPi, aod::pidTOFPr>;
 using ExTracks = soa::Join<aod::Tracks, aod::TracksExtra, aod::TrackSelection, aod::TracksDCA, DaughterTrack>;
+using ExMcTracks = soa::Join<aod::Tracks, aod::TracksExtra, aod::TrackSelection, aod::TracksDCA, DaughterTrack, aod::McTrackLabels>;
 using FiTracks = soa::Filtered<ExTracks>;
+using FiMcTracks = soa::Filtered<ExMcTracks>;
 using Particles = soa::Filtered<aod::McParticles>;
 using Particle = Particles::iterator;
 using LabeledTracks = soa::Join<aod::Tracks, aod::McTrackLabels>;
@@ -121,7 +123,9 @@ AxisSpec SpeciesAxis = {kSpeciesend - 1, kSpeciesbegin + 0.5, kSpeciesend - 0.5,
 AxisSpec MassAxis = {600, 0.3f, 1.3f, "Mass (GeV/c^{2})", "Inv. Mass (GeV/c^{2})"};
 AxisSpec SignAxis = {kSignend - 1, kSignbegin + 0.5, kSignend - 0.5, "", "sign"};
 AxisSpec StepAxis = {kStepend - 1, kStepbegin + 0.5, kStepend - 0.5, "", "step"};
-AxisSpec testAxis = {101, -0.5, 100.5, "", "test"};
+AxisSpec testAxis = {11, -0.5, 9.5, "", "test"};
+AxisSpec testAxis2 = {11, -0.5, 9.5, "", "test"};
+AxisSpec testAxis3 = {101, -0.5, 1000.5, "", "test"};
 AxisSpec particleIDAxis = {10000, 0.5, 10000.5, "", "particleID"};
 AxisSpec StatusCodeAxis = {3, -1.5, 2.5, "", "StatusCode"};
 AxisSpec ProcessCodeAxis = {45, -1.5, 44.5, "", "StatusCode"};
@@ -139,6 +143,7 @@ static constexpr TrackSelectionFlags::flagtype trackSelectionDCA =
   TrackSelectionFlags::kDCAz | TrackSelectionFlags::kDCAxy;
 
 struct MultiplicityCounter {
+  SliceCache cache;
   Service<O2DatabasePDG> pdg;
 
   Configurable<float> estimatorEta{"estimatorEta", 1.0, "eta range for INEL>0 sample definition"};
@@ -209,7 +214,13 @@ struct MultiplicityCounter {
     if (doprocessGen) {
       registry.add({"Tracks/ProcessGen/hgendndeta", "evntclass;  zvtex, eta", {HistType::kTHnSparseD, {EvtClassAxis, ZAxis, EtaAxis}}});
       registry.add({"Tracks/ProcessGen/hgenzvtx", "evntclass; zvtex", {HistType::kTHnSparseD, {EvtClassAxis, ZAxis}}});
-      registry.add({"Tracks/ProcessGen/event", "evntclass; zvtex", {HistType::kTHnSparseD, {testAxis}}});
+    }
+    if (doprocessTest) {
+      registry.add({"Events/ProcessTest/Selection", "event selection; gen_collision, rec_only one collision, rec_more than one collision", {HistType::kTHnSparseD, {testAxis}}});
+      registry.add({"Tracks/ProcessTest/Selection", "track selection; gen_no particle, gen_charged particle, rec_has no track, rec_has track", {HistType::kTHnSparseD, {testAxis2}}});
+      registry.add({"Tracks/ProcessTest/Response", "response; mc_rec; mc_gen", {HistType::kTH2D, {MultAxis, MultAxis}}});
+      registry.add({"Tracks/ProcessTest/Multiplicity", "response; mc_rec; mc_gen", {HistType::kTHnSparseD, {MultAxis, MultAxis}}});
+      // registry.add({"Tracks/ProcessTest/fromBackground", "response; mc_rec; mc_gen", {HistType::kTHnSparseD, {testAxis}}});
     }
   }
   void processEventStat(
@@ -260,8 +271,8 @@ struct MultiplicityCounter {
     for (auto& collision : collisions) {
       registry.fill(HIST("Events/Selection"), 1.);
       auto z = collision.posZ();
-      auto permfttracks = tSample2->sliceByCached(aod::fwdtrack::collisionId, collision.globalIndex());
-      auto pertracks = tSample3->sliceByCached(aod::track::collisionId, collision.globalIndex());
+      auto permfttracks = tSample2->sliceByCached(aod::fwdtrack::collisionId, collision.globalIndex(),cache);
+      auto pertracks = tSample3->sliceByCached(aod::track::collisionId, collision.globalIndex(),cache);
 
       if (!useEvSel || collision.sel8()) { // event selection cut
         if (std::abs(z) < 10) {            // z-vtx cut
@@ -436,14 +447,18 @@ struct MultiplicityCounter {
 
   expressions::Filter primaries = (aod::mcparticle::flags & (uint8_t)o2::aod::mcparticle::enums::PhysicalPrimary) == (uint8_t)o2::aod::mcparticle::enums::PhysicalPrimary;
   Partition<Particles> mcSample = nabs(aod::mcparticle::eta) < estimatorEta;
+  Partition<Particles> mcSample_test = nabs(aod::mcparticle::eta) < 2.f;
   Partition<aod::Tracks> tSample = nabs(aod::track::eta) < estimatorEta;
   Partition<aod::MFTTracks> tSample2 = (aod::fwdtrack::eta < -2.f) && (aod::fwdtrack::eta > -4.f);
   Partition<FiTracks> tSample3 = nabs(aod::track::eta) < estimatorEta;
+  Partition<FiMcTracks> tSample_test = nabs(aod::track::eta) < 2.f;
   Partition<soa::Filtered<LabeledTracksEx>> lsample = nabs(aod::track::eta) < estimatorEta;
 
   Preslice<FiTracks> perCol = aod::track::collisionId;
+  Preslice<Particles> perMcCol = aod::mcparticle::mcCollisionId;
   Preslice<soa::Join<aod::MFTTracks, aod::McMFTTrackLabels>> mcmfttracks_slice = o2::aod::fwdtrack::collisionId;
   Preslice<soa::Join<aod::Tracks, aod::McTrackLabels, aod::TracksExtra, aod::TrackSelection, aod::TracksDCA>> mctracks_slice = aod::track::collisionId;
+  Preslice<soa::Join<aod::Tracks, aod::McTrackLabels>> mctracks_slice2 = aod::track::collisionId;
   Preslice<aod::McParticles> mcparticle_slice = o2::aod::mcparticle::mcCollisionId;
   Preslice<soa::Join<aod::Tracks, aod::TracksExtra, aod::TrackSelection, aod::TracksDCA>> tracks_slice = aod::track::collisionId;
   Preslice<aod::MFTTracks> mfttracks_slice = o2::aod::fwdtrack::collisionId;
@@ -513,8 +528,8 @@ struct MultiplicityCounter {
 
       registry.fill(HIST("Tracks/ProcessMCCounting/hreczvtx"), Double_t(kINEL), Double_t(kMBAND), z);
       auto mcCollision = collision.mcCollision();
-      auto particles = mcSample->sliceByCached(aod::mcparticle::mcCollisionId, mcCollision.globalIndex());
-      auto tracks = lsample->sliceByCached(aod::track::collisionId, collision.globalIndex());
+      auto particles = mcSample->sliceByCached(aod::mcparticle::mcCollisionId, mcCollision.globalIndex(),cache);
+      auto tracks = lsample->sliceByCached(aod::track::collisionId, collision.globalIndex(),cache);
       tracks.bindExternalIndices(&mcParticles);
       auto permcmfttracks = mfttracks.sliceBy(mcmfttracks_slice, collision.globalIndex());
 
@@ -593,7 +608,7 @@ struct MultiplicityCounter {
       if (true) {
         for (auto& track : permcmfttracks) {
           if (track.has_mcParticle()) {
-            registry.fill(HIST("Tracks/ProcessMCCounting/hrecdndeta"), Double_t(kINEL), Double_t(kMBAND), z, track.mcParticle_as<Particles>().eta());
+            // registry.fill(HIST("Tracks/ProcessMCCounting/hrecdndeta"), Double_t(kINEL), Double_t(kMBAND), z, track.mcParticle_as<Particles>().eta());
           }
         }
       }
@@ -615,23 +630,89 @@ struct MultiplicityCounter {
     o2::soa::SmallGroups<soa::Join<aod::Collisions, aod::EvSels, aod::McCollisionLabels>> const& collisions,
     Particles const& mcParticles, FiTracks const& tracks)
   {
-    auto perCollisionMCSample = mcSample->sliceByCached(aod::mcparticle::mcCollisionId, mcCollision.globalIndex());
+    auto perCollisionMCSample = mcSample->sliceByCached(aod::mcparticle::mcCollisionId, mcCollision.globalIndex(),cache);
     auto genz = mcCollision.posZ();
     registry.fill(HIST("Tracks/ProcessGen/hgenzvtx"), Double_t(kINEL), genz);
-    registry.fill(HIST("Tracks/ProcessGen/event"), 0);
     for (auto& particle : perCollisionMCSample) {
-    registry.fill(HIST("Tracks/ProcessGen/event"), 1);
       auto p = pdg->GetParticle(particle.pdgCode());
       if (p != nullptr) {
-    registry.fill(HIST("Tracks/ProcessGen/event"), 2);
         if (std::abs(p->Charge()) >= 3) {
-    registry.fill(HIST("Tracks/ProcessGen/event"), 3);
           registry.fill(HIST("Tracks/ProcessGen/hgendndeta"), Double_t(kINEL), genz, particle.eta());
         }
       }
     }
   }
   PROCESS_SWITCH(MultiplicityCounter, processGen, "Process generator-level info", false);
+
+  void processTest(
+    aod::McCollision const& mccollision,
+    // aod::McCollisions::iterator const& mccollision,
+    o2::soa::SmallGroups<soa::Join<aod::Collisions, aod::McCollisionLabels, aod::EvSels>> const& collisions,
+    Particles const& mcparticles,
+    FiMcTracks const& tracks)
+  {
+    auto nGen = 0;
+    auto permccol = mcSample_test->sliceByCached(aod::mcparticle::mcCollisionId, mccollision.globalIndex(),cache);
+    for (auto& mcp : permccol) {
+      auto p = pdg->GetParticle(mcp.pdgCode());
+      if (p == nullptr) {
+        continue;
+      }
+      if (std::abs(p->Charge()) >= 3) {
+        nGen++;
+      }
+    }
+    registry.fill(HIST("Events/ProcessTest/Selection"), 0);
+
+    if (nGen == 0) {
+      registry.fill(HIST("Tracks/ProcessTest/Selection"), 0);
+    } else if (nGen > 0) {
+      registry.fill(HIST("Tracks/ProcessTest/Selection"), 1);
+    }
+
+    auto nCollisionAmount = 0;
+    auto nTrk = 0;
+    for (auto& col : collisions) {
+      nTrk = 0;
+      nCollisionAmount++;
+      if (!useEvSel || col.sel8()) {
+        if (!col.has_mcCollision()) {
+          continue;
+        }
+        auto percol = tSample_test->sliceByCached(aod::track::collisionId, col.globalIndex(),cache);
+        // auto percol = tracks.sliceBy(perCol, col.globalIndex());
+        for (auto& track : percol) {
+          if (!track.has_mcParticle()) {
+            continue;
+          }
+          if(track.mcParticle_as<Particles>().fromBackgroundEvent()){
+
+          }
+          
+          nTrk++;
+          // registry.fill(HIST("Tracks/ProcessTest/fromBackground"), track.mcParticle().fromBackgroundEvent());
+        }
+        if (nTrk == 0) {
+          registry.fill(HIST("Tracks/ProcessTest/Selection"), 2);
+
+        } else if (nTrk > 0) {
+          registry.fill(HIST("Tracks/ProcessTest/Selection"), 3);
+        }
+        registry.fill(HIST("Tracks/ProcessTest/Response"), nTrk, nGen);
+        registry.fill(HIST("Tracks/ProcessTest/Multiplicity"), nTrk, nGen);
+      }
+    }
+    if (nCollisionAmount == 0) {
+      registry.fill(HIST("Events/ProcessTest/Selection"), 1);
+    } else if (nCollisionAmount == 1) {
+      registry.fill(HIST("Events/ProcessTest/Selection"), 2);
+
+    } else if (nCollisionAmount > 1) {
+      registry.fill(HIST("Events/ProcessTest/Selection"), 3);
+    }
+  }
+  PROCESS_SWITCH(MultiplicityCounter, processTest, "Process generator-level info", true);
+
 };
 
 WorkflowSpec defineDataProcessing(ConfigContext const& cfgc)
