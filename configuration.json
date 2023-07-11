@@ -1,0 +1,131 @@
+{
+    "internal-dpl-clock": "",
+    "internal-dpl-aod-reader": {
+        "time-limit": "180",
+        "orbit-offset-enumeration": "0",
+        "orbit-multiplier-enumeration": "0",
+        "start-value-enumeration": "0",
+        "end-value-enumeration": "-1",
+        "step-value-enumeration": "1",
+        "aod-file": "@input_data.txt"
+    },
+    "internal-dpl-aod-spawner": "",
+    "internal-dpl-aod-index-builder": "",
+    "timestamp-task": {
+        "verbose": "false",
+        "rct-path": "RCT\/Info\/RunInformation",
+        "orbit-reset-path": "CTP\/Calib\/OrbitReset",
+        "ccdb-url": "http:\/\/alice-ccdb.cern.ch",
+        "isRun2MC": "false"
+    },
+    "track-propagation": {
+        "ccdb-url": "http:\/\/alice-ccdb.cern.ch",
+        "lutPath": "GLO\/Param\/MatLUT",
+        "geoPath": "GLO\/Config\/GeometryAligned",
+        "grpmagPath": "GLO\/Config\/GRPMagField",
+        "mVtxPath": "GLO\/Calib\/MeanVertex",
+        "minPropagationDistance": "5",
+        "processStandard": "true",
+        "processCovariance": "false"
+    },
+    "bc-selection-task": {
+        "triggerBcShift": "999",
+        "processRun2": "false",
+        "processRun3": "true"
+    },
+    "alice3-track-selection-task": {
+        "MaxDCAxy": "0.100000001",
+        "MinEta": "-0.800000012",
+        "MaxEta": "0.800000012"
+    },
+    "event-selection-task": {
+        "syst": "pp",
+        "muonSelection": "0",
+        "customDeltaBC": "300",
+        "isMC": "true",
+        "processRun2": "false",
+        "processRun3": "true"
+    },
+    "track-to-collision-association": {
+        "nSigmaForTimeCompat": "4",
+        "timeMargin": "0",
+        "setTrackSelections": "1",
+        "usePVAssociation": "true",
+        "includeUnassigned": "false",
+        "fillTableOfCollIdsPerTrack": "false",
+        "processAssocWithTime": "true",
+        "processStandardAssoc": "false"
+    },
+    "jet-finder-mcp-charged": {
+        "vertexZCut": "10",
+        "trackPtMin": "0.150000006",
+        "trackPtMax": "1000",
+        "trackEtaMin": "-0.899999976",
+        "trackEtaMax": "0.899999976",
+        "trackPhiMin": "-999",
+        "trackPhiMax": "999",
+        "trackSelections": "globalTracks",
+        "evSel": "evSel8",
+        "clusterDefinition": "kV3Default",
+        "clusterEtaMin": "-0.699999988",
+        "clusterEtaMax": "0.699999988",
+        "clusterPhiMin": "-999",
+        "clusterPhiMax": "999",
+        "clusterEnergyMin": "0.5",
+        "clusterTimeMin": "-999",
+        "clusterTimeMax": "999",
+        "clusterRejectExotics": "true",
+        "jetRadius": {
+            "values": [
+                "0.40000000000000002"
+            ]
+        },
+        "jetPtMin": "0",
+        "jetPtMax": "1000",
+        "jetTypeParticleLevel": "1",
+        "jetAlgorithm": "2",
+        "jetRecombScheme": "0",
+        "jetGhostArea": "0.00499999989",
+        "ghostRepeat": "1",
+        "DoTriggering": "false",
+        "DoRhoAreaSub": "false",
+        "DoConstSub": "false",
+        "processDummy": "true",
+        "processChargedJets": "false",
+        "processNeutralJets": "false",
+        "processFullJets": "false",
+        "processParticleLevelJets": "true"
+    },
+    "internal-dpl-aod-writer": "",
+    "internal-dpl-aod-global-analysis-file-sink": "",
+    "internal-dpl-injected-dummy-sink": "",
+    
+    "jet-finder-qa-hj": {
+        "triggeredJetsRadius": "0.600000024",
+        "vertexZCut": "10",
+        "jetRadii": {
+            "values": [
+                "0.20000000000000001",
+                "0.29999999999999999",
+                "0.40000000000000002",
+                "0.5",
+                "0.59999999999999998"
+            ]
+        },
+        "trackEtaMin": "-0.899999976",
+        "trackEtaMax": "0.899999976",
+        "trackPtMin": "0.150000006",
+        "trackPtMax": "100",
+        "trackSelections": "globalTracks",
+        "processDummy": "true",
+        "processJetsData": "false",
+        "processJetsMCD": "false",
+        "processJetsMCDWeighted": "false",
+        "processJetsMCP": "true",
+        "processJetsMCPWeighted": "false",
+        "processJetsMCPMCDMatched": "false",
+        "processJetsMCPMCDMatchedWeighted": "false",
+        "processMCCollisionsWeighted": "false",
+        "processTriggeredData": "false"
+    }
+}
